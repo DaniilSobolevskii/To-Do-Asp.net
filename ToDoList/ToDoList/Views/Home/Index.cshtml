@@ -1,0 +1,43 @@
+﻿@model Tasks;
+@{
+    ViewData["Title"] = "ToDo-List";
+
+}
+
+<div>
+    <h4 class="mb-3 text-muted"> Все задачи</h4>
+  
+    <table class="task-container">
+        <tr>
+            <th class="tb1">Имя</th>
+            <th>Описание</th>
+        </tr>
+        @for (var i = 0; i < Model.Base.Count; i++)
+        {
+            <tr>
+                <td>@Model.Base[i].Name</td>
+                <td>@Model.Base[i].Description</td>
+                <td><a class="btn" asp-action="Delete" asp-route-id="@i">delete</a></td>
+            </tr>
+        }
+    </table>
+</div>
+
+<div class="create-task">
+    
+    <form action="@Url.Action("Insert")" method="post">
+        <h4 class="mb-3 text-muted">Создание задачи</h4>
+        <div class="mb-3">
+            <label class="form-label"> Название задачи</label>
+            <input type="text" name="name" class="form-control" value=""/>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label"> Описание</label>
+            <textarea name="description" type="text" class="form-control" rows="3" value="" ></textarea>
+        </div>
+        <button id="createTask" class="btn btn-primary" asp-action="Insert">Ok</button>
+
+    </form>
+</div>
+

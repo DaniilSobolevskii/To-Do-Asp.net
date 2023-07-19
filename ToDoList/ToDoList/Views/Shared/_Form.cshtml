@@ -1,0 +1,13 @@
+@model ToDoList.Models.Task
+
+<form asp-action="Insert" id="form-action" method="post" class="form-horizontal" role="form">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Id" type="hidden" class="form-control"/>
+            <input asp-for="Description" class="form-control"/>
+            <span asp-validation-for="Name" class="text-danger"></span>
+    
+            <input type="submit" id="form-button" class="btn btn-success" value="Add Todo" />
+    
+
+</form>
