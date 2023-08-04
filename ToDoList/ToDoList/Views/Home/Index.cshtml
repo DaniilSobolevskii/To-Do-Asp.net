@@ -1,43 +1,140 @@
 ﻿@model Tasks;
 @{
-    ViewData["Title"] = "ToDo-List";
+    ViewData["Title"] = "ToDoList";
 
 }
+<h4 class="mb-lg-5 text-muted bg-opacity-100 bg-light bg" >Мои задачи</h4>
+<br>
+<div class="container-lg">
+    <div class="row">
+        <div class="col-7">
+            <h5 class="mb-4 text-muted" > Все задачи</h5>
+            <table class="table">
+                <tr>
+                  
+                    <th>Имя</th>
+                    <th >Описание</th>
+                    <th ></th>
+                </tr>
+                @for (var i = 0; i < Model.Base.Count; i++)
+                {
+                    <tr id = "tr_@i"  >
+                        
+                        <td class="col-3" id="name_@i">@Model.Base[i].Name</td>
+                        <td class="col-6" id="description_@i">@Model.Base[i].Description</td>
+                        <td class="col-2">
+                            <button id="editButton_@i" class="btn btn-primary" onclick="OnEdit(@i)">✎</button>
+                            <button id="deleteButton_@i" class="btn  btn-dark btn-group-sm" onclick="Delete(@i)"> Del</button>
+                            <div id ="task_@i"  hidden="hidden">@Model.Base[i].Id</div>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div class="col-4">
+            <h5 class="mb-4 text-muted" > Создать задачу</h5>
+            
+            <form action="@Url.Action("Insert")" method="post">
+                <div class="mb-3">
+                    <label class="form-label"> Название задачи</label>
+                    <input type="text" name="name" class="form-control" value=""/>
+                </div>
 
-<div>
-    <h4 class="mb-3 text-muted"> Все задачи</h4>
-  
-    <table class="task-container">
-        <tr>
-            <th class="tb1">Имя</th>
-            <th>Описание</th>
-        </tr>
-        @for (var i = 0; i < Model.Base.Count; i++)
-        {
-            <tr>
-                <td>@Model.Base[i].Name</td>
-                <td>@Model.Base[i].Description</td>
-                <td><a class="btn" asp-action="Delete" asp-route-id="@i">delete</a></td>
-            </tr>
-        }
-    </table>
-</div>
+                <div class="mb-3">
+                    <label class="form-label"> Описание</label>
+                    <textarea name="description" type="text" class="form-control" rows="3" value="" ></textarea>
+                </div>
+                <button id="createTask" class="btn btn-primary" asp-action="Insert">Ok</button>
+            </form>
+        </div>
+        </div>
+    </div>
 
-<div class="create-task">
+
+<script>
+ 
+function OnEdit(id) 
+    {
+       let name = document.getElementById(`name_${id}`)
+       let nameInput = document.createElement("input");
+       nameInput.id = `name_input${id}`
+       nameInput.value = name.innerText;
+       name.innerHTML = "";
+       name.appendChild(nameInput);
+       
+       let descripton = document.getElementById(`description_${id}`)
+       let descriptionInput = document.createElement("input");
+       descriptionInput.id = `description_input${id}`
+       descriptionInput.value = descripton.innerText;
+       descripton.innerHTML = "";
+       descripton.appendChild(descriptionInput);
+       
+       let editButton = document.getElementById(`editButton_${id}`)
+       //editButton.innerText = "OK"
+       editButton.innerHTML = "OK"
+       editButton.onclick = ()=>EditTask(id);
+    }
     
-    <form action="@Url.Action("Insert")" method="post">
-        <h4 class="mb-3 text-muted">Создание задачи</h4>
-        <div class="mb-3">
-            <label class="form-label"> Название задачи</label>
-            <input type="text" name="name" class="form-control" value=""/>
-        </div>
+    async function EditTask(id)
+    {
+       let task = document.getElementById(`task_${id}`);
+       let realId = task.innerText;
+       let upgradeTask = UpgradeTask(id)
+       let response = await fetch(`${realId}`, 
+              {
+                  method: "PUT",
+                  headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                  },
+                  body: JSON.stringify(upgradeTask)
+              });
+       let editButton = document.getElementById(`editButton_${id}`)
+       editButton.innerText = "✎"
+       editButton.onclick = ()=>OnEdit(id);
+       
+       let descriptionInput = document.getElementById(`description_input${id}`)
+       let description = document.getElementById(`description_${id}`)
+       description.innerHTML= descriptionInput.value;
+       descriptionInput.remove();
+       
+       let nameInput = document.getElementById(`name_input${id}`)
+       let name = document.getElementById(`name_${id}`)
+       name.innerHTML=nameInput.value;
+       nameInput.remove();
+    }
+    
+    function UpgradeTask(id) 
+    {
+        let taskName = document.getElementById(`name_input${id}`);
+        let name = taskName.value;
+        
+        let taskDescription = document.getElementById(`description_input${id}`);
+        let description = taskDescription.value;
+        
+        return{
+            id, 
+            name,
+            description
+        };
+    }
+    async function Delete(id)
+    {
+        let task = document.getElementById(`task_${id}`);
+        let realId = task.innerText;
+        
+        await fetch(`${realId}`, 
+        {
+            method: "DELETE",
+            headers: {
+              'Content-Type': 'application/json;charset=utf-8'
+            }   
+        })
+       
+        let tr = document.getElementById(`tr_${id}`);
+        tr.innerText="";
+    }
+    
+</script>
+ 
 
-        <div class="mb-3">
-            <label class="form-label"> Описание</label>
-            <textarea name="description" type="text" class="form-control" rows="3" value="" ></textarea>
-        </div>
-        <button id="createTask" class="btn btn-primary" asp-action="Insert">Ok</button>
-
-    </form>
-</div>
 
